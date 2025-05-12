@@ -69,7 +69,9 @@
                 <h2 class="text-lg font-semibold mb-2">Projekte</h2>
                 <ul class="space-y-2">
                     {% for project in projects %}
-                        <li class="bg-gray-50 rounded px-3 py-2 text-gray-800">{{ project.name }}</li>
+                        <li class="bg-gray-50 rounded px-3 py-2 text-gray-800">
+                            {{ project.name }} ({{ project.times | sum(attribute='duration') | round(2) }} h)
+                        </li>
                     {% endfor %}
                 </ul>
             </div>
