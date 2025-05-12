@@ -209,9 +209,10 @@ def archive_project(project_id):
     project = Project.query.get(project_id)
     if project:
         project.is_archived = True
-        # Entferne Projekt von allen Benutzern, denen es direkt zugewiesen ist
-        for user in project.users:
-            user.projects.remove(project)
+        # Entferne NICHT die Projektzuweisung von den Benutzern.
+        # Das is_archived Flag steuert die Sichtbarkeit.
+        # for user in project.users:
+        #     user.projects.remove(project) # Diese Zeile wird entfernt/auskommentiert
         db.session.commit()
         flash(f'Projekt "{project.name}" archiviert.', 'success')
     else:
