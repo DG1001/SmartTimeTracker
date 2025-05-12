@@ -38,5 +38,25 @@
         </ul>
       {% endif %}
     {% endwith %}
+
+    <h2>Alle Zeiteinträge</h2>
+    <table border="1">
+        <tr>
+            <th>Datum</th>
+            <th>Dauer (h)</th>
+            <th>Benutzer</th>
+            <th>Projekt</th>
+            <th>Kommentar</th>
+        </tr>
+        {% for entry in entries %}
+        <tr>
+            <td>{{ entry.date }}</td>
+            <td>{{ entry.duration }}</td>
+            <td>{{ entry.user.name }}</td>
+            <td>{{ entry.project.name }}</td>
+            <td>{{ entry.comment }}</td>
+        </tr>
+        {% endfor %}
+    </table>
 </body>
 </html>

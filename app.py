@@ -63,7 +63,12 @@ def admin_dashboard():
         return redirect(url_for('admin_login'))
     users = User.query.all()
     projects = Project.query.all()
-    return render_template('admin_dashboard.html', users=users, projects=projects)
+    entries = (
+        db.session.query(TimeEntry)
+        .order_by(TimeEntry.date.desc())
+        .all()
+    )
+    return render_template('admin_dashboard.html', users=users, projects=projects, entries=entries)
 
 @app.route('/admin/add_user', methods=['POST'])
 def add_user():
