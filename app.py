@@ -31,9 +31,11 @@ class TimeEntry(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     project_id = db.Column(db.Integer, db.ForeignKey('project.id'), nullable=False)
 
-@app.before_first_request
+@app.before_request
 def create_tables():
-    db.create_all()
+    if not hasattr(app, '_tables_created'):
+        db.create_all()
+        app._tables_created = True
 
 @app.route('/')
 def index():
