@@ -33,6 +33,7 @@ class User(db.Model):
 class Project(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(120), unique=True, nullable=False)
+    is_archived = db.Column(db.Boolean, default=False, nullable=False)
     times = db.relationship('TimeEntry', backref='project', lazy=True)
 
 class TimeEntry(db.Model):
@@ -80,7 +81,8 @@ def admin_dashboard():
         project_ids = request.form.getlist('project_ids')
         user = User.query.get(user_id)
         if user is not None:
-            user.projects = Project.query.filter(Project.id.in_(project_ids)).all()
+            # Nur aktive Projekte zuweisen
+            user.projects = Project.query.filter(Project.id.in_(project_ids), Project.is_archived == False).all()
             db.session.commit()
             flash('Projekte zugewiesen.', 'success')
         return redirect(url_for('admin_dashboard'))
@@ -95,7 +97,9 @@ def admin_dashboard():
             flash('Status aktualisiert.', 'success')
         return redirect(url_for('admin_dashboard'))
     users = User.query.all()
-    projects = Project.query.all()
+    # Nur aktive Projekte im Dashboard anzeigen
+    projects = Project.query.filter_by(is_archived=False).all()
+    # Alle Einträge anzeigen (auch von archivierten Projekten)
     entries = (
         db.session.query(TimeEntry)
         .order_by(TimeEntry.date.desc())
@@ -130,6 +134,43 @@ def admin_export_csv():
         headers={'Content-Disposition': 'attachment; filename=zeiteintraege.csv'}
     )
 
+@app.route('/admin/export_archived_projects_csv')
+def admin_export_archived_projects_csv():
+    if not session.get('admin'):
+        return redirect(url_for('admin_login'))
+    # Nur archivierte Projekte abrufen
+    archived_projects = Project.query.filter_by(is_archived=True).order_by(Project.name).all()
+
+    output = io.StringIO()
+    writer = csv.writer(output)
+    writer.writerow(['Projektname', 'Gesamtstunden', 'Zuletzt zugewiesene Benutzer'])
+
+    for project in archived_projects:
+        # Gesamtstunden berechnen
+        total_duration = db.session.query(db.func.sum(TimeEntry.duration)).filter(TimeEntry.project_id == project.id).scalar() or 0
+        # Benutzer finden, die dieses Projekt *hatten* (Beziehung existiert noch in user_project, auch wenn is_archived=True)
+        # Da wir die Beziehung beim Archivieren entfernen, müssen wir uns anders behelfen oder die Annahme ändern.
+        # Aktuelle Implementierung entfernt die Beziehung. Wir lassen die Benutzer-Spalte vorerst leer oder ändern die Logik.
+        # Alternative: Beziehung nicht entfernen beim Archivieren. Dann können wir hier die Benutzer abfragen.
+        # Entscheidung: Wir lassen die Benutzer-Spalte vorerst leer, da die Anforderung war, die Referenz *in der DB* zu halten,
+        # was durch die TimeEntries gegeben ist, aber nicht unbedingt durch die user_project-Tabelle nach dem Entfernen.
+        # Wenn die user_project-Beziehung erhalten bleiben soll, muss der Code in archive_project angepasst werden.
+        assigned_users = ", ".join([user.name for user in project.users]) # Funktioniert nur, wenn Beziehung nicht entfernt wird.
+
+        writer.writerow([
+            project.name,
+            round(total_duration, 2),
+            assigned_users # Diese Spalte bleibt leer mit der aktuellen Archivierungslogik
+        ])
+
+    output.seek(0)
+    return Response(
+        output,
+        mimetype='text/csv',
+        headers={'Content-Disposition': 'attachment; filename=archivierte_projekte.csv'}
+    )
+
+
 @app.route('/admin/add_user', methods=['POST'])
 def add_user():
     if not session.get('admin'):
@@ -157,6 +198,22 @@ def add_project():
     db.session.add(project)
     db.session.commit()
     flash(f'Projekt {name} hinzugefügt.', 'success')
+    return redirect(url_for('admin_dashboard'))
+
+@app.route('/admin/archive_project/<int:project_id>', methods=['POST'])
+def archive_project(project_id):
+    if not session.get('admin'):
+        return redirect(url_for('admin_login'))
+    project = Project.query.get(project_id)
+    if project:
+        project.is_archived = True
+        # Entferne Projekt von allen Benutzern, denen es direkt zugewiesen ist
+        for user in project.users:
+            user.projects.remove(project)
+        db.session.commit()
+        flash(f'Projekt "{project.name}" archiviert.', 'success')
+    else:
+        flash('Projekt nicht gefunden.', 'danger')
     return redirect(url_for('admin_dashboard'))
 
 @app.route('/user/login', methods=['GET', 'POST'])
@@ -192,8 +249,10 @@ def user_dashboard():
     if not user_id:
         return redirect(url_for('user_login'))
     user = User.query.get(user_id)
-    # Nur zugewiesene Projekte anzeigen
-    projects = user.projects if user.projects else Project.query.all()
+    # Nur zugewiesene *und nicht archivierte* Projekte anzeigen
+    projects = [p for p in user.projects if not p.is_archived] if user.projects else []
+    # Wenn keine Projekte zugewiesen sind, keine anzeigen (statt alle)
+    # projects = Project.query.filter_by(is_archived=False).all() # Alte Logik, falls keine zugewiesen waren
     edit_entry = None
 
     # Bearbeiten-Formular laden

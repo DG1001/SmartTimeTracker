@@ -76,9 +76,16 @@
                     </thead>
                     <tbody>
                         {% for project in projects %}
-                        <tr class="border-t border-gray-200 hover:bg-gray-50 cursor-default">
+                        <tr class="border-t border-gray-200 hover:bg-gray-50">
                             <td class="px-4 py-2 text-gray-800">{{ project.name }}</td>
                             <td class="px-4 py-2 text-right text-gray-800 font-mono">{{ project.times | sum(attribute='duration') | round(2) }} h</td>
+                            <td class="px-4 py-2 text-right">
+                                <form method="post" action="{{ url_for('archive_project', project_id=project.id) }}" onsubmit="return confirm('Projekt \'{{ project.name }}\' wirklich archivieren? Es wird aus allen Benutzerzuweisungen entfernt.');">
+                                    <button type="submit" class="text-yellow-600 hover:text-yellow-800 text-sm" title="Archivieren">
+                                        Archivieren
+                                    </button>
+                                </form>
+                            </td>
                         </tr>
                         {% endfor %}
                     </tbody>
