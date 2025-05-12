@@ -95,6 +95,10 @@
           {% endif %}
         {% endwith %}
 
+        <div class="flex justify-end mb-4">
+            <a href="{{ url_for('admin_export_csv') }}" class="rounded-lg bg-green-600 text-white px-4 py-2 hover:bg-green-500 transition">CSV Export</a>
+        </div>
+
         <div class="bg-white/80 rounded-xl shadow p-6 border border-gray-200">
             <h2 class="text-xl font-semibold mb-4">Alle Zeiteinträge</h2>
             <div class="overflow-x-auto">

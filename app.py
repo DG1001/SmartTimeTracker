@@ -1,7 +1,9 @@
-from flask import Flask, render_template, request, redirect, url_for, session, flash
+from flask import Flask, render_template, request, redirect, url_for, session, flash, Response
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
 import secrets
+import csv
+import io
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'supersecretkey'
@@ -97,6 +99,33 @@ def admin_dashboard():
         .all()
     )
     return render_template('admin_dashboard.html', users=users, projects=projects, entries=entries)
+
+@app.route('/admin/export_csv')
+def admin_export_csv():
+    if not session.get('admin'):
+        return redirect(url_for('admin_login'))
+    entries = TimeEntry.query.order_by(TimeEntry.date.desc()).all()
+
+    output = io.StringIO()
+    writer = csv.writer(output)
+    writer.writerow(['Datum', 'Dauer (h)', 'Benutzer', 'Projekt', 'Kommentar', 'Status'])
+
+    for entry in entries:
+        writer.writerow([
+            entry.date.strftime('%Y-%m-%d'),
+            entry.duration,
+            entry.user.name,
+            entry.project.name,
+            entry.comment,
+            entry.status or ''
+        ])
+
+    output.seek(0)
+    return Response(
+        output,
+        mimetype='text/csv',
+        headers={'Content-Disposition': 'attachment; filename=zeiteintraege.csv'}
+    )
 
 @app.route('/admin/add_user', methods=['POST'])
 def add_user():
