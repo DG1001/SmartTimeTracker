@@ -12,11 +12,18 @@ db = SQLAlchemy(app)
 
 ADMIN_PASSWORD = "admin123"  # Fixes Admin-Passwort
 
+user_project = db.Table(
+    'user_project',
+    db.Column('user_id', db.Integer, db.ForeignKey('user.id'), primary_key=True),
+    db.Column('project_id', db.Integer, db.ForeignKey('project.id'), primary_key=True)
+)
+
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(80), unique=True, nullable=False)
     token = db.Column(db.String(32), unique=True, nullable=False)
     times = db.relationship('TimeEntry', backref='user', lazy=True)
+    projects = db.relationship('Project', secondary=user_project, backref=db.backref('users', lazy='dynamic'))
 
 class Project(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -62,7 +69,18 @@ def admin_logout():
 def admin_dashboard():
     if not session.get('admin'):
         return redirect(url_for('admin_login'))
-    if request.method == 'POST':
+    # Projekt-Zuweisung
+    if request.method == 'POST' and request.form.get('action') == 'assign_projects':
+        user_id = request.form.get('user_id')
+        project_ids = request.form.getlist('project_ids')
+        user = User.query.get(user_id)
+        if user is not None:
+            user.projects = Project.query.filter(Project.id.in_(project_ids)).all()
+            db.session.commit()
+            flash('Projekte zugewiesen.', 'success')
+        return redirect(url_for('admin_dashboard'))
+    # Status setzen
+    if request.method == 'POST' and request.form.get('entry_id'):
         entry_id = request.form.get('entry_id')
         status = request.form.get('status')
         entry = TimeEntry.query.get(entry_id)
@@ -132,7 +150,8 @@ def user_dashboard():
     if not user_id:
         return redirect(url_for('user_login'))
     user = User.query.get(user_id)
-    projects = Project.query.all()
+    # Nur zugewiesene Projekte anzeigen
+    projects = user.projects if user.projects else Project.query.all()
     edit_entry = None
 
     # Bearbeiten-Formular laden
