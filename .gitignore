@@ -1,3 +1,4 @@
 .aider*
 .venv/
 instance/smarttimetracker.db
+__pycache__/
