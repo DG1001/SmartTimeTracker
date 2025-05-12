@@ -66,12 +66,16 @@
                 </ul>
             </div>
             <div class="bg-white/80 rounded-xl shadow p-6 border border-gray-200">
-                <h2 class="text-lg font-semibold mb-2">Projekte</h2>
+                <div class="flex justify-between items-center mb-2">
+                    <h2 class="text-lg font-semibold">Projekte (Aktiv)</h2>
+                    <a href="{{ url_for('admin_export_archived_projects_csv') }}" class="rounded-lg bg-yellow-600 text-white px-3 py-1 text-sm hover:bg-yellow-500 transition">Archivierte exportieren</a>
+                </div>
                 <table class="min-w-full border border-gray-200 rounded-xl" style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;">
                     <thead>
                         <tr class="bg-gray-100 text-gray-700">
                             <th class="px-4 py-2 text-left border-b border-gray-300">Projektname</th>
                             <th class="px-4 py-2 text-right border-b border-gray-300">Gesamtstunden</th>
+                            <th class="px-4 py-2 text-right border-b border-gray-300">Aktion</th>
                         </tr>
                     </thead>
                     <tbody>
