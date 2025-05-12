@@ -99,9 +99,11 @@ def admin_dashboard():
     users = User.query.all()
     # Nur aktive Projekte im Dashboard anzeigen
     projects = Project.query.filter_by(is_archived=False).all()
-    # Alle Einträge anzeigen (auch von archivierten Projekten)
+    # Nur Einträge von nicht-archivierten Projekten anzeigen
     entries = (
         db.session.query(TimeEntry)
+        .join(Project)
+        .filter(Project.is_archived == False)
         .order_by(TimeEntry.date.desc())
         .all()
     )
@@ -294,7 +296,14 @@ def user_dashboard():
                 flash('Fehler beim Speichern: ' + str(e), 'danger')
         return redirect(url_for('user_dashboard'))
 
-    entries = TimeEntry.query.filter_by(user_id=user.id).order_by(TimeEntry.date.desc()).all()
+    # Nur Einträge von nicht-archivierten Projekten anzeigen
+    entries = (
+        TimeEntry.query
+        .join(Project)
+        .filter(TimeEntry.user_id == user.id, Project.is_archived == False)
+        .order_by(TimeEntry.date.desc())
+        .all()
+    )
     return render_template('user_dashboard.html', user=user, projects=projects, entries=entries, edit_entry=edit_entry)
 
 @app.route('/user/delete_entry/<int:entry_id>', methods=['POST'])
