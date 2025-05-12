@@ -36,26 +36,11 @@
                             <div class="flex flex-col gap-1">
                                 <div class="flex justify-between items-center">
                                     <span class="font-medium text-gray-800">{{ user.name }}</span>
-                                    <span class="text-xs text-gray-500">Token: <code class="bg-gray-200 rounded px-1">{{ user.token }}</code></span>
-                                </div>
-                                <form method="post" class="flex flex-col md:flex-row md:items-center gap-2" action="{{ url_for('admin_dashboard') }}">
-                                    <input type="hidden" name="action" value="assign_projects">
-                                    <input type="hidden" name="user_id" value="{{ user.id }}">
-                                    <div class="flex flex-wrap gap-2 items-center mt-2">
-                                        <span class="text-xs text-gray-600 mr-2">Projekte zuweisen:</span>
-                                        <div class="flex flex-wrap gap-x-4 gap-y-1">
-                                            {% for project in projects %}
-                                            <label class="flex items-center space-x-1 text-sm cursor-pointer">
-                                                <input type="checkbox" name="project_ids" value="{{ project.id }}"
-                                                       class="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-offset-0 focus:ring-blue-200 focus:ring-opacity-50"
-                                                       {% if project in user.projects %}checked{% endif %}>
-                                                <span>{{ project.name }}</span>
-                                            </label>
-                                            {% endfor %}
-                                        </div>
-                                        <button type="submit" class="rounded bg-blue-600 text-white px-2 py-1 text-xs hover:bg-blue-500 transition ml-auto">Speichern</button>
+                                    <div class="flex items-center gap-4">
+                                        <span class="text-xs text-gray-500">Token: <code class="bg-gray-200 rounded px-1">{{ user.token }}</code></span>
+                                        <button type="button" onclick="openModal('assign-modal-{{ user.id }}')" class="rounded bg-gray-200 text-gray-700 px-2 py-0.5 text-xs hover:bg-gray-300 transition">Projekte bearbeiten</button>
                                     </div>
-                                </form>
+                                </div>
                                 <div class="text-xs text-gray-500 mt-2">
                                     <span class="font-medium">Aktuell zugewiesen:</span>
                                     {% if user.projects %}
@@ -68,6 +53,32 @@
                                 </div>
                             </div>
                         </li>
+                        <!-- Modal für Benutzer {{ user.name }} -->
+                        <div id="assign-modal-{{ user.id }}" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full flex items-center justify-center hidden z-50" onclick="closeModalOnClickOutside(event, 'assign-modal-{{ user.id }}')">
+                            <div class="relative mx-auto p-6 border w-full max-w-md shadow-lg rounded-md bg-white">
+                                <h3 class="text-lg font-medium text-gray-900 mb-4">Projekte für {{ user.name }} zuweisen</h3>
+                                <form method="post" action="{{ url_for('admin_dashboard') }}">
+                                    <input type="hidden" name="action" value="assign_projects">
+                                    <input type="hidden" name="user_id" value="{{ user.id }}">
+                                    <div class="space-y-2 max-h-60 overflow-y-auto mb-4 pr-2">
+                                        {% for project in projects %}
+                                        <label class="flex items-center space-x-2 text-sm cursor-pointer p-1 hover:bg-gray-100 rounded">
+                                            <input type="checkbox" name="project_ids" value="{{ project.id }}"
+                                                   class="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-offset-0 focus:ring-blue-200 focus:ring-opacity-50"
+                                                   {% if project in user.projects %}checked{% endif %}>
+                                            <span>{{ project.name }}</span>
+                                        </label>
+                                        {% else %}
+                                        <p class="text-sm text-gray-500">Keine aktiven Projekte vorhanden.</p>
+                                        {% endfor %}
+                                    </div>
+                                    <div class="flex justify-end gap-2 mt-4">
+                                        <button type="button" onclick="closeModal('assign-modal-{{ user.id }}')" class="px-4 py-2 bg-gray-200 text-gray-800 rounded hover:bg-gray-300 text-sm">Abbrechen</button>
+                                        <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-500 text-sm">Speichern</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
                     {% endfor %}
                 </ul>
             </div>
@@ -169,5 +180,24 @@
             </div>
         </div>
     </div>
+
+    <script>
+        function openModal(modalId) {
+            document.getElementById(modalId).classList.remove('hidden');
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.add('hidden');
+        }
+
+        // Schließt das Modal, wenn außerhalb des Inhalts geklickt wird
+        function closeModalOnClickOutside(event, modalId) {
+            const modal = document.getElementById(modalId);
+            // Überprüft, ob das geklickte Element das Modal-Backdrop selbst ist (nicht der Inhalt)
+            if (event.target === modal) {
+                closeModal(modalId);
+            }
+        }
+    </script>
 </body>
 </html>
