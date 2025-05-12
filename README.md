@@ -1,40 +1,51 @@
 # SmartTimeTracker
 
-SmartTimeTracker ist eine Webanwendung zur Zeiterfassung, die es Benutzern ermöglicht, ihre Arbeitszeiten zu verfolgen und Projekte zu verwalten.
+Eine einfache Webanwendung zur Zeiterfassung mit Benutzer- und Admin-Dashboard.
 
-## Funktionen
+## Features
 
-- Benutzer- und Admin-Login
-- Zeiteinträge erfassen und verwalten
-- Projekte erstellen und zuweisen
-- Status von Zeiteinträgen aktualisieren
+- Benutzer-Login per Token (auch Direktlogin per URL-Parameter `?token=...`)
+- Zeiteinträge erfassen, bearbeiten und löschen
+- Admin-Dashboard zur Benutzer- und Projektverwaltung
+- CSV-Export aller Zeiteinträge im Admin-Dashboard
+- Statusverwaltung für Zeiteinträge (OK / Nicht OK)
+- Projektliste im Adminbereich mit Gesamtstunden als Apple-OS-ähnliche Tabelle
 
 ## Installation
 
-1. Klone das Repository:
+1. Repository klonen:
    ```bash
    git clone <repository-url>
+   cd <projektverzeichnis>
    ```
 
-2. Wechsle in das Projektverzeichnis:
-   ```bash
-   cd SmartTimeTracker
-   ```
-
-3. Installiere die Abhängigkeiten:
+2. Abhängigkeiten installieren:
    ```bash
    pip install -r requirements.txt
    ```
 
-4. Starte die Anwendung:
+3. Anwendung starten:
    ```bash
    python app.py
    ```
 
+4. Im Browser öffnen:
+   ```
+   http://localhost:5000
+   ```
+
 ## Nutzung
 
-- Besuche die Startseite, um zwischen Benutzer- und Admin-Login zu wählen.
-- Nach dem Login kannst du Zeiteinträge erfassen und Projekte verwalten.
+- Admin-Login über `/admin/login` mit festgelegtem Passwort (`admin123`).
+- Benutzer-Login über `/user/login` mit Token oder Direktlogin per URL-Parameter.
+- Im Admin-Dashboard Benutzer und Projekte anlegen, Projekte Benutzern zuweisen.
+- Benutzer können ihre Zeiteinträge erfassen, bearbeiten und löschen.
+- Admin kann alle Zeiteinträge einsehen, Status setzen und als CSV exportieren.
+
+## Sicherheitshinweis
+
+- Das Admin-Passwort ist aktuell fest im Code hinterlegt und sollte für den produktiven Einsatz geändert werden.
+- Tokens für Benutzer sind zufällig generiert und dienen als Authentifizierung.
 
 ## Lizenz
 
