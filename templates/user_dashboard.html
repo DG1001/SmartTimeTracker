@@ -14,20 +14,41 @@
         <div class="bg-white/80 rounded-xl shadow p-6 border border-gray-200 mb-10">
             <h2 class="text-xl font-semibold mb-4">Zeiteintrag erfassen</h2>
             <form method="post" class="flex flex-col gap-2">
+                {% if edit_entry %}
+                    <input type="hidden" name="entry_id" value="{{ edit_entry.id }}">
+                {% endif %}
                 <div class="flex flex-row gap-4 w-full">
-                    <input type="number" step="0.01" name="duration" placeholder="Dauer (Stunden)" required class="rounded-lg border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 w-32">
-                    <input type="date" name="date" value="{{ request.form.date or '' }}" class="rounded-lg border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 w-40">
-                    <select name="project_id" required class="rounded-lg border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 flex-1 min-w-0">
+                    <input type="number" step="0.01" name="duration" placeholder="Dauer (Stunden)" required
+                        class="rounded-lg border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 w-32"
+                        value="{{ edit_entry.duration if edit_entry else '' }}">
+                    <input type="date" name="date"
+                        value="{{ (edit_entry.date if edit_entry else request.form.date) or '' }}"
+                        class="rounded-lg border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 w-40">
+                    <select name="project_id" required
+                        class="rounded-lg border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 flex-1 min-w-0">
                         <option value="">Projekt wählen</option>
                         {% for project in projects %}
-                            <option value="{{ project.id }}">{{ project.name }}</option>
+                            <option value="{{ project.id }}"
+                                {% if edit_entry and project.id == edit_entry.project_id %}selected{% endif %}>
+                                {{ project.name }}
+                            </option>
                         {% endfor %}
                     </select>
                 </div>
                 <div class="flex flex-row gap-4 w-full mt-1">
-                    <input type="text" name="comment" placeholder="Kommentar" required class="rounded-lg border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 flex-1 min-w-0">
-                    <button type="submit" class="rounded-lg bg-blue-600 text-white px-4 py-2 hover:bg-blue-500 transition h-full self-start">Speichern</button>
+                    <input type="text" name="comment" placeholder="Kommentar" required
+                        class="rounded-lg border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 flex-1 min-w-0"
+                        value="{{ edit_entry.comment if edit_entry else '' }}">
+                    <button type="submit"
+                        class="rounded-lg bg-blue-600 text-white px-4 py-2 hover:bg-blue-500 transition h-full self-start">
+                        {% if edit_entry %}Aktualisieren{% else %}Speichern{% endif %}
+                    </button>
                 </div>
+                {% if edit_entry %}
+                    <div class="mt-2">
+                        <a href="{{ url_for('user_dashboard') }}" class="text-blue-600 hover:underline text-sm">Abbrechen</a>
+                    </div>
+                {% endif %}
             </form>
             {% with messages = get_flashed_messages(with_categories=true) %}
               {% if messages %}
@@ -49,6 +70,7 @@
                             <th class="px-4 py-2 text-left">Dauer (h)</th>
                             <th class="px-4 py-2 text-left">Projekt</th>
                             <th class="px-4 py-2 text-left">Kommentar</th>
+                            <th class="px-4 py-2 text-left"></th>
                         </tr>
                     </thead>
                     <tbody>
@@ -58,6 +80,13 @@
                             <td class="px-4 py-2">{{ entry.duration }}</td>
                             <td class="px-4 py-2">{{ entry.project.name }}</td>
                             <td class="px-4 py-2">{{ entry.comment }}</td>
+                            <td class="px-4 py-2 flex gap-2">
+                                <a href="{{ url_for('user_dashboard', edit=entry.id) }}"
+                                   class="text-blue-600 hover:underline text-sm">Bearbeiten</a>
+                                <form method="post" action="{{ url_for('delete_entry', entry_id=entry.id) }}" style="display:inline;" onsubmit="return confirm('Eintrag wirklich löschen?');">
+                                    <button type="submit" class="text-red-600 hover:underline text-sm">Löschen</button>
+                                </form>
+                            </td>
                         </tr>
                         {% endfor %}
                     </tbody>

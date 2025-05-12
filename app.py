@@ -123,7 +123,16 @@ def user_dashboard():
         return redirect(url_for('user_login'))
     user = User.query.get(user_id)
     projects = Project.query.all()
+    edit_entry = None
+
+    # Bearbeiten-Formular laden
+    edit_id = request.args.get('edit')
+    if edit_id:
+        edit_entry = TimeEntry.query.filter_by(id=edit_id, user_id=user.id).first()
+
+    # Eintrag speichern oder bearbeiten
     if request.method == 'POST':
+        entry_id = request.form.get('entry_id')
         duration = request.form.get('duration')
         date = request.form.get('date')
         comment = request.form.get('comment')
@@ -137,14 +146,40 @@ def user_dashboard():
                     date_obj = datetime.utcnow().date()
                 else:
                     date_obj = datetime.strptime(date, '%Y-%m-%d').date()
-                entry = TimeEntry(duration=duration, date=date_obj, comment=comment, user_id=user.id, project_id=project_id)
-                db.session.add(entry)
-                db.session.commit()
-                flash('Zeiteintrag gespeichert.', 'success')
+                if entry_id:  # Bearbeiten
+                    entry = TimeEntry.query.filter_by(id=entry_id, user_id=user.id).first()
+                    if entry:
+                        entry.duration = duration
+                        entry.date = date_obj
+                        entry.comment = comment
+                        entry.project_id = project_id
+                        db.session.commit()
+                        flash('Zeiteintrag aktualisiert.', 'success')
+                else:  # Neu
+                    entry = TimeEntry(duration=duration, date=date_obj, comment=comment, user_id=user.id, project_id=project_id)
+                    db.session.add(entry)
+                    db.session.commit()
+                    flash('Zeiteintrag gespeichert.', 'success')
             except Exception as e:
                 flash('Fehler beim Speichern: ' + str(e), 'danger')
+        return redirect(url_for('user_dashboard'))
+
     entries = TimeEntry.query.filter_by(user_id=user.id).order_by(TimeEntry.date.desc()).all()
-    return render_template('user_dashboard.html', user=user, projects=projects, entries=entries)
+    return render_template('user_dashboard.html', user=user, projects=projects, entries=entries, edit_entry=edit_entry)
+
+@app.route('/user/delete_entry/<int:entry_id>', methods=['POST'])
+def delete_entry(entry_id):
+    user_id = session.get('user_id')
+    if not user_id:
+        return redirect(url_for('user_login'))
+    entry = TimeEntry.query.filter_by(id=entry_id, user_id=user_id).first()
+    if entry:
+        db.session.delete(entry)
+        db.session.commit()
+        flash('Zeiteintrag gelöscht.', 'success')
+    else:
+        flash('Eintrag nicht gefunden oder keine Berechtigung.', 'danger')
+    return redirect(url_for('user_dashboard'))
 
 if __name__ == '__main__':
     app.run(debug=True)
