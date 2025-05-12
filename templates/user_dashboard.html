@@ -3,48 +3,63 @@
 <head>
     <meta charset="utf-8">
     <title>Benutzer Dashboard - SmartTimeTracker</title>
+    <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body>
-    <h1>Hallo {{ user.name }}</h1>
-    <a href="{{ url_for('user_logout') }}">Logout</a>
-    <h2>Zeiteintrag erfassen</h2>
-    <form method="post">
-        <input type="number" step="0.01" name="duration" placeholder="Dauer (Stunden)" required>
-        <input type="date" name="date" value="{{ request.form.date or '' }}">
-        <select name="project_id" required>
-            <option value="">Projekt wählen</option>
-            {% for project in projects %}
-                <option value="{{ project.id }}">{{ project.name }}</option>
-            {% endfor %}
-        </select>
-        <input type="text" name="comment" placeholder="Kommentar" required>
-        <button type="submit">Speichern</button>
-    </form>
-    {% with messages = get_flashed_messages(with_categories=true) %}
-      {% if messages %}
-        <ul>
-        {% for category, message in messages %}
-          <li style="color:green;">{{ message }}</li>
-        {% endfor %}
-        </ul>
-      {% endif %}
-    {% endwith %}
-    <h2>Meine Zeiteinträge</h2>
-    <table border="1">
-        <tr>
-            <th>Datum</th>
-            <th>Dauer (h)</th>
-            <th>Projekt</th>
-            <th>Kommentar</th>
-        </tr>
-        {% for entry in entries %}
-        <tr>
-            <td>{{ entry.date }}</td>
-            <td>{{ entry.duration }}</td>
-            <td>{{ entry.project.name }}</td>
-            <td>{{ entry.comment }}</td>
-        </tr>
-        {% endfor %}
-    </table>
+<body class="bg-gradient-to-br from-gray-100 to-gray-300 min-h-screen">
+    <div class="max-w-3xl mx-auto py-10">
+        <div class="flex justify-between items-center mb-8">
+            <h1 class="text-2xl font-bold text-gray-900">Hallo {{ user.name }}</h1>
+            <a href="{{ url_for('user_logout') }}" class="px-4 py-2 rounded-lg bg-gray-900 text-white hover:bg-gray-800 transition">Logout</a>
+        </div>
+        <div class="bg-white/80 rounded-xl shadow p-6 border border-gray-200 mb-10">
+            <h2 class="text-xl font-semibold mb-4">Zeiteintrag erfassen</h2>
+            <form method="post" class="flex flex-col md:flex-row md:items-end gap-4">
+                <input type="number" step="0.01" name="duration" placeholder="Dauer (Stunden)" required class="rounded-lg border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 w-full md:w-40">
+                <input type="date" name="date" value="{{ request.form.date or '' }}" class="rounded-lg border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 w-full md:w-48">
+                <select name="project_id" required class="rounded-lg border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 w-full md:w-48">
+                    <option value="">Projekt wählen</option>
+                    {% for project in projects %}
+                        <option value="{{ project.id }}">{{ project.name }}</option>
+                    {% endfor %}
+                </select>
+                <input type="text" name="comment" placeholder="Kommentar" required class="rounded-lg border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 w-full md:w-64">
+                <button type="submit" class="rounded-lg bg-blue-600 text-white px-4 py-2 hover:bg-blue-500 transition w-full md:w-auto">Speichern</button>
+            </form>
+            {% with messages = get_flashed_messages(with_categories=true) %}
+              {% if messages %}
+                <ul class="mt-4">
+                {% for category, message in messages %}
+                  <li class="text-green-600">{{ message }}</li>
+                {% endfor %}
+                </ul>
+              {% endif %}
+            {% endwith %}
+        </div>
+        <div class="bg-white/80 rounded-xl shadow p-6 border border-gray-200">
+            <h2 class="text-xl font-semibold mb-4">Meine Zeiteinträge</h2>
+            <div class="overflow-x-auto">
+                <table class="min-w-full border border-gray-200 rounded-xl">
+                    <thead>
+                        <tr class="bg-gray-100 text-gray-700">
+                            <th class="px-4 py-2 text-left">Datum</th>
+                            <th class="px-4 py-2 text-left">Dauer (h)</th>
+                            <th class="px-4 py-2 text-left">Projekt</th>
+                            <th class="px-4 py-2 text-left">Kommentar</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for entry in entries %}
+                        <tr class="border-t border-gray-200 hover:bg-gray-50">
+                            <td class="px-4 py-2">{{ entry.date }}</td>
+                            <td class="px-4 py-2">{{ entry.duration }}</td>
+                            <td class="px-4 py-2">{{ entry.project.name }}</td>
+                            <td class="px-4 py-2">{{ entry.comment }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
 </body>
 </html>

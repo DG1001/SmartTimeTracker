@@ -3,60 +3,88 @@
 <head>
     <meta charset="utf-8">
     <title>Admin Dashboard - SmartTimeTracker</title>
+    <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body>
-    <h1>Admin Dashboard</h1>
-    <a href="{{ url_for('admin_logout') }}">Logout</a>
-    <h2>Benutzer anlegen</h2>
-    <form method="post" action="{{ url_for('add_user') }}">
-        <input type="text" name="name" placeholder="Benutzername" required>
-        <button type="submit">Benutzer anlegen</button>
-    </form>
-    <h2>Projekt anlegen</h2>
-    <form method="post" action="{{ url_for('add_project') }}">
-        <input type="text" name="name" placeholder="Projektname" required>
-        <button type="submit">Projekt anlegen</button>
-    </form>
-    <h2>Benutzer</h2>
-    <ul>
-        {% for user in users %}
-            <li>{{ user.name }} | Token: <code>{{ user.token }}</code></li>
-        {% endfor %}
-    </ul>
-    <h2>Projekte</h2>
-    <ul>
-        {% for project in projects %}
-            <li>{{ project.name }}</li>
-        {% endfor %}
-    </ul>
-    {% with messages = get_flashed_messages(with_categories=true) %}
-      {% if messages %}
-        <ul>
-        {% for category, message in messages %}
-          <li style="color:green;">{{ message }}</li>
-        {% endfor %}
-        </ul>
-      {% endif %}
-    {% endwith %}
+<body class="bg-gradient-to-br from-gray-100 to-gray-300 min-h-screen">
+    <div class="max-w-5xl mx-auto py-10">
+        <div class="flex justify-between items-center mb-8">
+            <h1 class="text-3xl font-bold text-gray-900">Admin Dashboard</h1>
+            <a href="{{ url_for('admin_logout') }}" class="px-4 py-2 rounded-lg bg-gray-900 text-white hover:bg-gray-800 transition">Logout</a>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-10">
+            <div class="bg-white/80 rounded-xl shadow p-6 border border-gray-200">
+                <h2 class="text-xl font-semibold mb-4">Benutzer anlegen</h2>
+                <form method="post" action="{{ url_for('add_user') }}" class="flex gap-2">
+                    <input type="text" name="name" placeholder="Benutzername" required class="flex-1 rounded-lg border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <button type="submit" class="rounded-lg bg-blue-600 text-white px-4 py-2 hover:bg-blue-500 transition">Anlegen</button>
+                </form>
+            </div>
+            <div class="bg-white/80 rounded-xl shadow p-6 border border-gray-200">
+                <h2 class="text-xl font-semibold mb-4">Projekt anlegen</h2>
+                <form method="post" action="{{ url_for('add_project') }}" class="flex gap-2">
+                    <input type="text" name="name" placeholder="Projektname" required class="flex-1 rounded-lg border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <button type="submit" class="rounded-lg bg-blue-600 text-white px-4 py-2 hover:bg-blue-500 transition">Anlegen</button>
+                </form>
+            </div>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-10">
+            <div class="bg-white/80 rounded-xl shadow p-6 border border-gray-200">
+                <h2 class="text-lg font-semibold mb-2">Benutzer</h2>
+                <ul class="space-y-2">
+                    {% for user in users %}
+                        <li class="flex justify-between items-center bg-gray-50 rounded px-3 py-2">
+                            <span class="font-medium text-gray-800">{{ user.name }}</span>
+                            <span class="text-xs text-gray-500">Token: <code class="bg-gray-200 rounded px-1">{{ user.token }}</code></span>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+            <div class="bg-white/80 rounded-xl shadow p-6 border border-gray-200">
+                <h2 class="text-lg font-semibold mb-2">Projekte</h2>
+                <ul class="space-y-2">
+                    {% for project in projects %}
+                        <li class="bg-gray-50 rounded px-3 py-2 text-gray-800">{{ project.name }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            <ul class="mb-6">
+            {% for category, message in messages %}
+              <li class="text-green-600">{{ message }}</li>
+            {% endfor %}
+            </ul>
+          {% endif %}
+        {% endwith %}
 
-    <h2>Alle Zeiteinträge</h2>
-    <table border="1">
-        <tr>
-            <th>Datum</th>
-            <th>Dauer (h)</th>
-            <th>Benutzer</th>
-            <th>Projekt</th>
-            <th>Kommentar</th>
-        </tr>
-        {% for entry in entries %}
-        <tr>
-            <td>{{ entry.date }}</td>
-            <td>{{ entry.duration }}</td>
-            <td>{{ entry.user.name }}</td>
-            <td>{{ entry.project.name }}</td>
-            <td>{{ entry.comment }}</td>
-        </tr>
-        {% endfor %}
-    </table>
+        <div class="bg-white/80 rounded-xl shadow p-6 border border-gray-200">
+            <h2 class="text-xl font-semibold mb-4">Alle Zeiteinträge</h2>
+            <div class="overflow-x-auto">
+                <table class="min-w-full border border-gray-200 rounded-xl">
+                    <thead>
+                        <tr class="bg-gray-100 text-gray-700">
+                            <th class="px-4 py-2 text-left">Datum</th>
+                            <th class="px-4 py-2 text-left">Dauer (h)</th>
+                            <th class="px-4 py-2 text-left">Benutzer</th>
+                            <th class="px-4 py-2 text-left">Projekt</th>
+                            <th class="px-4 py-2 text-left">Kommentar</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for entry in entries %}
+                        <tr class="border-t border-gray-200 hover:bg-gray-50">
+                            <td class="px-4 py-2">{{ entry.date }}</td>
+                            <td class="px-4 py-2">{{ entry.duration }}</td>
+                            <td class="px-4 py-2">{{ entry.user.name }}</td>
+                            <td class="px-4 py-2">{{ entry.project.name }}</td>
+                            <td class="px-4 py-2">{{ entry.comment }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
 </body>
 </html>
