@@ -30,6 +30,7 @@ class TimeEntry(db.Model):
     comment = db.Column(db.String(255), nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     project_id = db.Column(db.Integer, db.ForeignKey('project.id'), nullable=False)
+    status = db.Column(db.String(8), nullable=True)  # "ok", "not_ok" oder None
 
 @app.before_request
 def create_tables():
@@ -57,10 +58,19 @@ def admin_logout():
     session.pop('admin', None)
     return redirect(url_for('index'))
 
-@app.route('/admin/dashboard')
+@app.route('/admin/dashboard', methods=['GET', 'POST'])
 def admin_dashboard():
     if not session.get('admin'):
         return redirect(url_for('admin_login'))
+    if request.method == 'POST':
+        entry_id = request.form.get('entry_id')
+        status = request.form.get('status')
+        entry = TimeEntry.query.get(entry_id)
+        if entry:
+            entry.status = status
+            db.session.commit()
+            flash('Status aktualisiert.', 'success')
+        return redirect(url_for('admin_dashboard'))
     users = User.query.all()
     projects = Project.query.all()
     entries = (

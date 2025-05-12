@@ -69,6 +69,7 @@
                             <th class="px-4 py-2 text-left">Benutzer</th>
                             <th class="px-4 py-2 text-left">Projekt</th>
                             <th class="px-4 py-2 text-left">Kommentar</th>
+                            <th class="px-4 py-2 text-left">Status</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -79,6 +80,30 @@
                             <td class="px-4 py-2">{{ entry.user.name }}</td>
                             <td class="px-4 py-2">{{ entry.project.name }}</td>
                             <td class="px-4 py-2">{{ entry.comment }}</td>
+                            <td class="px-4 py-2">
+                                <form method="post" class="flex flex-row items-center gap-2">
+                                    <input type="hidden" name="entry_id" value="{{ entry.id }}">
+                                    <button name="status" value="ok" type="submit" class="px-2 py-1 rounded text-green-600 hover:bg-green-100" title="OK">
+                                        <span class="sr-only">OK</span>
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                                        </svg>
+                                    </button>
+                                    <button name="status" value="not_ok" type="submit" class="px-2 py-1 rounded text-red-600 hover:bg-red-100" title="Nicht OK">
+                                        <span class="sr-only">Nicht OK</span>
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                        </svg>
+                                    </button>
+                                    {% if entry.status == "ok" %}
+                                        <span class="ml-2 text-green-600 font-bold" title="OK">+</span>
+                                    {% elif entry.status == "not_ok" %}
+                                        <span class="ml-2 text-red-600 font-bold" title="Nicht OK">-</span>
+                                    {% else %}
+                                        <span class="ml-2 text-gray-400" title="Kein Status">?</span>
+                                    {% endif %}
+                                </form>
+                            </td>
                         </tr>
                         {% endfor %}
                     </tbody>
