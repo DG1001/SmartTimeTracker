@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="de">
+<head>
+    <meta charset="utf-8">
+    <title>Benutzer Login - SmartTimeTracker</title>
+</head>
+<body>
+    <h1>Benutzer Login</h1>
+    <form method="post">
+        <input type="text" name="token" placeholder="Token" required>
+        <button type="submit">Login</button>
+    </form>
+    <a href="{{ url_for('index') }}">Zurück</a>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <ul>
+        {% for category, message in messages %}
+          <li style="color:red;">{{ message }}</li>
+        {% endfor %}
+        </ul>
+      {% endif %}
+    {% endwith %}
+</body>
+</html>

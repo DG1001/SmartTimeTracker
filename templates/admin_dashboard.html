@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="de">
+<head>
+    <meta charset="utf-8">
+    <title>Admin Dashboard - SmartTimeTracker</title>
+</head>
+<body>
+    <h1>Admin Dashboard</h1>
+    <a href="{{ url_for('admin_logout') }}">Logout</a>
+    <h2>Benutzer anlegen</h2>
+    <form method="post" action="{{ url_for('add_user') }}">
+        <input type="text" name="name" placeholder="Benutzername" required>
+        <button type="submit">Benutzer anlegen</button>
+    </form>
+    <h2>Projekt anlegen</h2>
+    <form method="post" action="{{ url_for('add_project') }}">
+        <input type="text" name="name" placeholder="Projektname" required>
+        <button type="submit">Projekt anlegen</button>
+    </form>
+    <h2>Benutzer</h2>
+    <ul>
+        {% for user in users %}
+            <li>{{ user.name }} | Token: <code>{{ user.token }}</code></li>
+        {% endfor %}
+    </ul>
+    <h2>Projekte</h2>
+    <ul>
+        {% for project in projects %}
+            <li>{{ project.name }}</li>
+        {% endfor %}
+    </ul>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <ul>
+        {% for category, message in messages %}
+          <li style="color:green;">{{ message }}</li>
+        {% endfor %}
+        </ul>
+      {% endif %}
+    {% endwith %}
+</body>
+</html>
