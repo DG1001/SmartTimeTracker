@@ -80,12 +80,22 @@
                             <td class="px-4 py-2">{{ entry.duration }}</td>
                             <td class="px-4 py-2">{{ entry.project.name }}</td>
                             <td class="px-4 py-2">{{ entry.comment }}</td>
-                            <td class="px-4 py-2 flex gap-2">
-                                <a href="{{ url_for('user_dashboard', edit=entry.id) }}"
-                                   class="text-blue-600 hover:underline text-sm">Bearbeiten</a>
-                                <form method="post" action="{{ url_for('delete_entry', entry_id=entry.id) }}" style="display:inline;" onsubmit="return confirm('Eintrag wirklich löschen?');">
-                                    <button type="submit" class="text-red-600 hover:underline text-sm">Löschen</button>
-                                </form>
+                            <td class="px-4 py-2">
+                                <div class="flex flex-row items-center gap-2">
+                                    <a href="{{ url_for('user_dashboard', edit=entry.id) }}"
+                                       class="text-blue-600 hover:text-blue-800" title="Bearbeiten">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536M9 13l6.536-6.536a2 2 0 112.828 2.828L11.828 15.828a2 2 0 01-2.828 0L5 12.828a2 2 0 010-2.828L9 13z" />
+                                        </svg>
+                                    </a>
+                                    <form method="post" action="{{ url_for('delete_entry', entry_id=entry.id) }}" style="display:inline;" onsubmit="return confirm('Eintrag wirklich löschen?');">
+                                        <button type="submit" class="text-red-600 hover:text-red-800" title="Löschen">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                            </svg>
+                                        </button>
+                                    </form>
+                                </div>
                             </td>
                         </tr>
                         {% endfor %}
