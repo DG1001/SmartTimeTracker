@@ -36,8 +36,8 @@
                             <div class="flex flex-col gap-1">
                                 <div class="flex justify-between items-center">
                                     <span class="font-medium text-gray-800">{{ user.name }}</span>
-                                    <div class="flex items-center gap-4">
-                                        <span class="text-xs text-gray-500">Token: <code class="bg-gray-200 rounded px-1">{{ user.token }}</code></span>
+                                    <div class="flex items-center gap-2"> <!-- Reduzierter Abstand zwischen Buttons -->
+                                        <button type="button" onclick="openModal('user-details-modal-{{ user.id }}')" class="rounded bg-gray-200 text-gray-700 px-2 py-0.5 text-xs hover:bg-gray-300 transition">Details</button>
                                         <button type="button" onclick="openModal('assign-modal-{{ user.id }}')" class="rounded bg-gray-200 text-gray-700 px-2 py-0.5 text-xs hover:bg-gray-300 transition">Projekte bearbeiten</button>
                                     </div>
                                 </div>
@@ -77,6 +77,29 @@
                                         <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-500 text-sm">Speichern</button>
                                     </div>
                                 </form>
+                            </div>
+                        </div>
+                        <!-- Modal für Benutzer-Details {{ user.name }} -->
+                        <div id="user-details-modal-{{ user.id }}" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full flex items-center justify-center hidden z-50" onclick="closeModalOnClickOutside(event, 'user-details-modal-{{ user.id }}')">
+                            <div class="relative mx-auto p-6 border w-full max-w-md shadow-lg rounded-md bg-white">
+                                <h3 class="text-lg font-medium text-gray-900 mb-4">Details für {{ user.name }}</h3>
+                                <div class="space-y-3 text-sm">
+                                    <div>
+                                        <span class="font-semibold text-gray-600">Benutzername:</span>
+                                        <span class="text-gray-800">{{ user.name }}</span>
+                                    </div>
+                                    <div>
+                                        <span class="font-semibold text-gray-600">Token:</span>
+                                        <code class="text-xs bg-gray-100 rounded px-1 py-0.5 break-all">{{ user.token }}</code>
+                                    </div>
+                                    <div>
+                                        <span class="font-semibold text-gray-600">Login-Link:</span>
+                                        <a href="{{ url_for('user_login', token=user.token, _external=True) }}" target="_blank" class="text-blue-600 hover:underline break-all">{{ url_for('user_login', token=user.token, _external=True) }}</a>
+                                    </div>
+                                </div>
+                                <div class="flex justify-end mt-6">
+                                    <button type="button" onclick="closeModal('user-details-modal-{{ user.id }}')" class="px-4 py-2 bg-gray-200 text-gray-800 rounded hover:bg-gray-300 text-sm">Schließen</button>
+                                </div>
                             </div>
                         </div>
                     {% endfor %}
