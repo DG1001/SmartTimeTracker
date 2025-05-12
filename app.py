@@ -158,6 +158,16 @@ def add_project():
 
 @app.route('/user/login', methods=['GET', 'POST'])
 def user_login():
+    # Direktlogin per URL-Parameter ?token=...
+    token = request.args.get('token')
+    if token:
+        user = User.query.filter_by(token=token).first()
+        if user:
+            session['user_id'] = user.id
+            return redirect(url_for('user_dashboard'))
+        else:
+            flash('Ungültiger Token', 'danger')
+
     if request.method == 'POST':
         token = request.form.get('token')
         user = User.query.filter_by(token=token).first()
