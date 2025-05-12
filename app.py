@@ -5,14 +5,15 @@ import secrets
 import csv
 import io
 
+import os
+import secrets
+
 app = Flask(__name__)
-app.config['SECRET_KEY'] = 'supersecretkey'
+app.config['SECRET_KEY'] = secrets.token_hex(16)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///smarttimetracker.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
-
-import os
 
 ADMIN_PASSWORD = os.getenv("ADMIN_PASSWORD", "admin123")  # Admin-Passwort aus Umgebungsvariable oder Default
 
