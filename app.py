@@ -12,7 +12,9 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
 
-ADMIN_PASSWORD = "admin123"  # Fixes Admin-Passwort
+import os
+
+ADMIN_PASSWORD = os.getenv("ADMIN_PASSWORD", "admin123")  # Admin-Passwort aus Umgebungsvariable oder Default
 
 user_project = db.Table(
     'user_project',
